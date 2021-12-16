@@ -4,39 +4,45 @@
 
 FasterRCNN作为经典的two-staged detector，至今为止其精度配合FPN+ROIAlign依然SOTA。
 
-然而TensorRT的输入输出要求shape是确定值，就算新的版本支持动态batch_size，但是在一开始也要确定最大输入的batch_size。
+然而FasterRCNN在TensorRT的部署却没有one-stage的检测器那么容易。因为TensorRT输入输出要求shape是确定值，就算新的版本支持动态batch_size，但是在一开始也要确定最大输入的batch_size，中间的算子是不允许运行时更改维度的。
 
-这成为FasterRCNN+FPN+ROIAlign在TensorRT部署的难点，**因为rpn的输出需要经过nms+roialign，nms的输出是不固定的。**
+这成为FasterRCNN+FPN+ROIAlign在TensorRT部署的难点，**因为rpn的输出需要经过nms+roialign，尽管nms和roialign可以通过plugin的方式来实现，但是nms的输出是不固定的。**
 
 **此外，在计算roialign计算时，应该把fpn哪个输出层的feature是根据rpn输出的bbox来计算的，onnx对于这里的计算步骤用计算图的表示引入了大量的判断算子，这在TensorRT的onnx解析器中是不支持的。**
-
-
-
-
 
 本项目采用`torchvision.models.detection.fasterrcnn_resnet50_fpn`为待部署模型，着手解决部署中产生的一些问题。
 
 主要思路：**将rpn部分和检测头分开，分成两个模型。rpn部分采用onnx解析，nms+roialigin部分使用原生cuda来做。处理后的feature送入header部分，然后再一次经过cuda实现的nms得到最终结果。**
 
+
+
 *本项目的调试技巧主要是对齐输入输出，中间调试过程将不演示。*
 
-
 ## 预备环境
+
+安装torch、torchvision
+
 ```
 torch==1.10.0
 torchvision==0.11.1
 ```
 
+安装onnx-simplifier
+
 ```bash
 pip install onnx-simplifier -U
 ```
+
+安装onnx_graphsurgeon
 
 ```bash
 # https://github.com/NVIDIA/TensorRT/tree/master/tools/onnx-graphsurgeon
 python3 -m pip install onnx_graphsurgeon --index-url https://pypi.ngc.nvidia.com
 ```
 
+安装TensorRT8.0版本
 
+详细步骤见tensorrt_code文件夹
 
 ## onnx生成步骤
 
