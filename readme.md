@@ -8,7 +8,7 @@ FasterRCNN作为经典的two-staged detector，至今为止其精度配合FPN+RO
 
 这成为FasterRCNN+FPN+ROIAlign在TensorRT部署的难点，**因为rpn的输出需要经过nms+roialign，尽管nms和roialign可以通过plugin的方式来实现，但是nms的输出是不固定的。**
 
-**此外，在计算roialign计算时，应该把fpn哪个输出层的feature是根据rpn输出的bbox来计算的，onnx对于这里的计算步骤用计算图的表示引入了大量的判断算子，这在TensorRT的onnx解析器中是不支持的。**
+**此外，在计算roialign计算时，应该采用fpn哪个输出层的feature作为roialign的输入，是根据rpn输出的bbox来计算的，onnx对于这里的计算步骤用计算图的表示引入了大量的判断算子，这在TensorRT的onnx解析器中是不支持的。**
 
 本项目采用`torchvision.models.detection.fasterrcnn_resnet50_fpn`为待部署模型，着手解决部署中产生的一些问题。
 
