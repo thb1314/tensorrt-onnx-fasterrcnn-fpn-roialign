@@ -52,6 +52,12 @@ python3 -m pip install onnx_graphsurgeon --index-url https://pypi.ngc.nvidia.com
 >
 > 原则2：针对一些tensorrt不友好的算子比如：原地赋值、nonzero算子，equal算子等尽可能以另外方式等价替代或者舍弃
 
+
+
+> 文件的执行需要 one by one，不要跳。此外，请根据情况请改源码中的部分onnx表示
+
+
+
 相关onnx生成文件在test路径下，x01-x08即为整体思路演示
 
 1. `x01export_FasterRCNN_onnx.py`：导出FasterRCNN整体模型onnx
@@ -96,7 +102,9 @@ python3 -m pip install onnx_graphsurgeon --index-url https://pypi.ngc.nvidia.com
 
    1. 将网络的输入更改为`roialigned_feature`和`proposals`，去掉roi align和fpn_level的计算部分。
 
-      `tensor = tensors["218"]` Line11 这段代码及时对该reshape操作输入的替换。
+      `tensor = tensors["218"]` Line11 这段代码即对该reshape操作输入的替换。
+
+      **这里需要根据自己的生成的onnx改变名字**
 
       ![image-20211216112059762](readme.assets/image-20211216112059762.png)
 
@@ -108,6 +116,8 @@ python3 -m pip install onnx_graphsurgeon --index-url https://pypi.ngc.nvidia.com
 
       对应一下几行代码
 
+      **这里需要根据自己的生成的onnx修改，切记**
+      
       ```python
       shape_score = gs.Constant(name="shape_score", values=np.array((-1, 90), dtype=np.int64))
           shape_boxes = gs.Constant(name="shape_boxes", values=np.array((-1, 90, 4), dtype=np.int64))
