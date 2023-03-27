@@ -1,5 +1,8 @@
 # TensorRT部署FasterRCNN
 
+> 我们推出了当前版本的升级，支持训练、动态batch、fp16且精度与onnx对齐，欢迎star
+> https://github.com/thb1314/maskrcnn-tensorrt
+
 > **本项目为torchvision中的fasterrcnn_resnet50_fpn（即FasterCNNN+ROIAlign+FPN）在TensorRT上的部署提供了解决方案。**
 
 FasterRCNN作为经典的two-staged detector，至今为止其精度配合FPN+ROIAlign依然SOTA。
